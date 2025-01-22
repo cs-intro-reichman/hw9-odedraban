@@ -148,7 +148,7 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public MemoryBlock getBlock(int index) {
-		if (index < 0 || index >= size) {
+		if (index < 0 || index >= size || size == 0) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
@@ -180,7 +180,6 @@ public class LinkedList {
 	public void remove(Node node) {
 		if (node == first) {
 			first = first.next;
-			size--;
 			if (first == null) last = null;
 			size--;
 			return;
@@ -205,7 +204,10 @@ public class LinkedList {
 	 *         if index is negative or greater than or equal to size
 	 */
 	public void remove(int index) {
-		if (index < 0 || index >= size) {
+		if (size == 0) {
+			throw new IllegalArgumentException("List is empty");
+		}
+		else if (index < 0 || index >= size) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
@@ -218,11 +220,12 @@ public class LinkedList {
 			prevNode.next = null;
 			last = prevNode;
 			size--;
+			return;
 		}
 		else {
 			Node prevNode = getNode(index - 1);
 			if (prevNode.next == null) last = prevNode;
-			else prevNode.next = getNode(index + 1);
+			else remove(prevNode.next);
 		}
 	}
 
@@ -234,10 +237,8 @@ public class LinkedList {
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		int index = indexOf(block);
-		if (index == -1) {
-			throw new IllegalArgumentException(
-					"the given memory block is not in this list");
+		if (size == 0) {
+			throw new IllegalArgumentException("List is empty");
 		}
 		if (first.block == block) {
 			remove(first);
@@ -264,10 +265,11 @@ public class LinkedList {
 	 */
 	public String toString() {
 		String str = "";
-		Node indexNode = first;
-		while (indexNode != null) {
-			str += indexNode.block.toString() + " ";
-			indexNode = indexNode.next;
+		if (this.getFirst() != null) {
+			Node indexNode = first;
+			while (indexNode != null) {
+				str += indexNode.block.toString() + " ";
+				indexNode = indexNode.next;
 		}
 		return str;
 	}
