@@ -55,7 +55,6 @@ public class LinkedList {
 					"index must be between 0 and size");
 		}
 		if (size == 0) return null;
-		if (index == 0) return first;
 		else {
 			Node indexNode = first;
 			for (int i = 0; i < index; i++) {
@@ -110,12 +109,13 @@ public class LinkedList {
 	public void addLast(MemoryBlock block) {
 		Node newNode = new Node (block);
 		if (size == 0) {
-            first = newNode;
-            last = newNode;
-        } else {
-            last.next = newNode;
-            last = newNode;
-        }
+			first = newNode;
+			last = newNode;
+		}
+		else {
+			last.next = newNode;
+			last = newNode;
+		}
         size++; 
 	}
 	
@@ -128,13 +128,9 @@ public class LinkedList {
 	 */
 	public void addFirst(MemoryBlock block) {
 		Node newNode = new Node (block);
-		if (size == 0) {
-            first = newNode;
-            last = newNode;
-        } else {
-            newNode.next = first;
-            first = newNode;
-        }
+		newNode.next = first;
+		first = newNode;
+		if (size == 0) last = newNode;
         size++; 
 	}
 
@@ -165,7 +161,7 @@ public class LinkedList {
 	public int indexOf(MemoryBlock block) {
 		Node indexNode = first;
 		for (int i = 0; i < size; i++) {
-			if (indexNode.block == block) return i;
+			if (indexNode.block.equals(block)) return i;
 			indexNode = indexNode.next;
 		}
 		return -1;
@@ -178,6 +174,9 @@ public class LinkedList {
 	 *        the node that will be removed from this list
 	 */
 	public void remove(Node node) {
+		if (node == null || first == null) {
+			throw new NullPointerException();
+		}
 		if (node == first) {
 			first = first.next;
 			if (first == null) last = null;
@@ -185,15 +184,16 @@ public class LinkedList {
 			return;
 		}
 		Node curNode = first;
-		while (curNode != null && curNode.next != node) {
-            curNode = curNode.next;
-        }
-		if (curNode == null || curNode.next == null) {
-			throw new IllegalArgumentException("Node not found in the list");
-		}
-		curNode.next = node.next;
-		if (node == last) last = curNode;
-		size--;
+		while (curNode != null) {
+			if (curNode.next == node) {
+				curNode.next = curNode.next.next;
+				if (curNode.next == null) last = curNode;
+				size--;
+				return;
+			}
+			curNode = curNode.next;
+        }	
+		throw new IllegalArgumentException("Node not found in the list");
 	}
 
 	/**
@@ -207,26 +207,12 @@ public class LinkedList {
 		if (size == 0) {
 			throw new IllegalArgumentException("List is empty");
 		}
-		else if (index < 0 || index >= size) {
+		else if (index < 0 || index > size) {
 			throw new IllegalArgumentException(
 					"index must be between 0 and size");
 		}
-		else if (index == 0) {
-			remove(first);
-			return;
-		}
-		else if (index == size - 1) {
-			Node prevNode = getNode(index - 1);
-			prevNode.next = null;
-			last = prevNode;
-			size--;
-			return;
-		}
-		else {
-			Node prevNode = getNode(index - 1);
-			if (prevNode.next == null) last = prevNode;
-			else remove(prevNode.next);
-		}
+		Node removeNode = getNode(index);
+		remove(removeNode);
 	}
 
 	/**
@@ -237,18 +223,18 @@ public class LinkedList {
 	 *         if the given memory block is not in this list
 	 */
 	public void remove(MemoryBlock block) {
-		if (size == 0) {
-			throw new IllegalArgumentException("List is empty");
+		if (block == null) {
+			throw new IllegalArgumentException("Block is empty");
 		}
-		if (first.block == block) {
-			remove(first);
+		Node curNode = first;
+		while (curNode != null) {
+			if (curNode.block.equals(block)) {
+				remove(curNode);
+				return;
+			}
+			curNode = curNode.next;
 		}
-		else if (last.block == block){
-			remove(last);
-		}
-		else {
-			Node indexNode = getNode(indexOf(block) - 1);
-			remove(indexNode.next);
+		throw new IllegalArgumentException("index must be between 0 and size");
 		}
 
 	}	
@@ -256,19 +242,20 @@ public class LinkedList {
 	/**
 	 * Returns an iterator over this list, starting with the first element.
 	 */
-	public ListIterator iterator(){
+	 public ListIterator iterator(){
 		return new ListIterator(first);
-	}
+	 }
 	
 	/**
 	 * A textual representation of this list, for debugging.
 	 */
 	public String toString() {
+		if (this.first == null) return "";
 		String str = "";
 		if (this.getFirst() != null) {
 			Node indexNode = first;
 			while (indexNode != null) {
-				str += indexNode.block.toString() + " ";
+				str += indexNode.toString() + " ";
 				indexNode = indexNode.next;
 		}
 		return str;
