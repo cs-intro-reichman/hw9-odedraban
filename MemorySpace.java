@@ -58,19 +58,19 @@ public class MemorySpace {
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
 	public int malloc(int length) {		
-		if (length <= 0) throw new IllegalArgumentException("Block size must be positive");
+		if (length <= 0) return -1;
 		ListIterator freeIterator = freeList.iterator();
 		while (freeIterator.hasNext()) {
 
 			MemoryBlock indexBlock = freeIterator.next();
 
-			if (indexBlock.getLength() > length) {
+			if (indexBlock.length > length) {
 				int baseAddress = indexBlock.getBaseAddress();
 				MemoryBlock newBlock = new MemoryBlock(baseAddress, length);
 				allocatedList.addLast(newBlock);
 				indexBlock.setBaseAddress(baseAddress + length);
 				indexBlock.setLength(indexBlock.getLength() - length);
-				return indexBlock.baseAddress;
+				return newBlock.baseAddress;
 			}
 			
 			else if (indexBlock.getLength() == length) {
