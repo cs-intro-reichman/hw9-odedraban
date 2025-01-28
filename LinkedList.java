@@ -221,7 +221,7 @@ public class LinkedList {
      */
     public void remove(MemoryBlock block) {
         if (block == null) {
-            throw new IllegalArgumentException("Block is empty");
+            throw new IllegalArgumentException("index must be between 0 and size");
         }
         Node curNode = first;
         while (curNode != null) {
