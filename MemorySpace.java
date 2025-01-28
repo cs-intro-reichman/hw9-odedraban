@@ -64,20 +64,21 @@ public class MemorySpace {
 
 			MemoryBlock indexBlock = freeIterator.next();
 
-			if (indexBlock.getLength() == length) {
-				freeList.remove(indexBlock);
-				allocatedList.addLast(indexBlock);
-				return indexBlock.getBaseAddress();
-			}
-
 			if (indexBlock.getLength() > length) {
 				int baseAddress = indexBlock.getBaseAddress();
 				MemoryBlock newBlock = new MemoryBlock(baseAddress, length);
 				allocatedList.addLast(newBlock);
 				indexBlock.setBaseAddress(baseAddress + length);
 				indexBlock.setLength(indexBlock.getLength() - length);
-				return indexBlock.getBaseAddress();
+				return indexBlock.baseAddress;
 			}
+			
+			else if (indexBlock.getLength() == length) {
+				freeList.remove(indexBlock);
+				allocatedList.addLast(indexBlock);
+				return indexBlock.baseAddress;
+			}
+
 		}
 		return -1;
 	}
