@@ -58,7 +58,27 @@ public class MemorySpace {
 	 * @return the base address of the allocated block, or -1 if unable to allocate
 	 */
 	public int malloc(int length) {		
-		//// Replace the following statement with your code
+		if (length <= 0) throw new IllegalArgumentException("Block size must be positive");
+		ListIterator freeIterator = freeList.iterator();
+		while (freeIterator.hasNext()) {
+
+			MemoryBlock indexBlock = freeIterator.next();
+
+			if (indexBlock.getLength() == length) {
+				freeList.remove(indexBlock);
+				allocatedList.addLast(indexBlock);
+				return indexBlock.getBaseAddress();
+			}
+
+			if (indexBlock.getLength() > length) {
+				int baseAddress = indexBlock.getBaseAddress();
+				MemoryBlock newBlock = new MemoryBlock(baseAddress, length);
+				allocatedList.addLast(newBlock);
+				indexBlock.setBaseAddress(baseAddress + length);
+				indexBlock.setLength(indexBlock.getLength() - length);
+				return indexBlock.getBaseAddress();
+			}
+		}
 		return -1;
 	}
 
@@ -71,7 +91,19 @@ public class MemorySpace {
 	 *            the starting address of the block to freeList
 	 */
 	public void free(int address) {
-		//// Write your code here
+		if (allocatedList.getSize() == 0) {
+			throw new IllegalArgumentException("index must be between 0 and size");
+		}
+		ListIterator allocatedIterator = allocatedList.iterator();
+		while (allocatedIterator.current != null) {
+			MemoryBlock indexBlock = allocatedIterator.next();
+			if (indexBlock.getBaseAddress() == address) {
+				freeList.addLast(indexBlock);
+				allocatedList.remove(indexBlock);
+				return;
+			}
+
+		}
 	}
 	
 	/**
@@ -79,7 +111,7 @@ public class MemorySpace {
 	 * for debugging purposes.
 	 */
 	public String toString() {
-		return freeList.toString() + "\n" + allocatedList.toString();		
+		return freeList.toString() + "\n" + allocatedList.toString() + "";		
 	}
 	
 	/**
@@ -88,7 +120,20 @@ public class MemorySpace {
 	 * In this implementation Malloc does not call defrag.
 	 */
 	public void defrag() {
-		/// TODO: Implement defrag test
-		//// Write your code here
+		if (freeList == null) return;
+		ListIterator MainIterator = freeList.iterator();
+		ListIterator SecondIterator = freeList.iterator();
+		while (MainIterator.hasNext()) {
+			MemoryBlock index1MemoryBlock = MainIterator.next();
+			int optionalBase = index1MemoryBlock.baseAddress + index1MemoryBlock.length;
+			while (SecondIterator.hasNext()) {
+				MemoryBlock index2MemoryBlock = SecondIterator.next();
+				if (optionalBase == index2MemoryBlock.baseAddress) {
+					index1MemoryBlock.length += index2MemoryBlock.length;
+					freeList.remove(index2MemoryBlock);
+					defrag();
+				}
+			}
+		}
 	}
 }
