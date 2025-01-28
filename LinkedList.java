@@ -204,13 +204,10 @@ public class LinkedList {
      *         if index is negative or greater than or equal to size
      */
     public void remove(int index) {
-        if (size == 0) {
-            throw new IllegalArgumentException("List is empty");
-        }
-        else if (index < 0 || index > size) {
-            throw new IllegalArgumentException(
-                    "index must be between 0 and size");
-        }
+        if (index < 0 || index > size) {
+			throw new IllegalArgumentException(
+					"index must be between 0 and size");
+		}
         Node removeNode = getNode(index);
         remove(removeNode);
     }
